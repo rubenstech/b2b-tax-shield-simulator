@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Beneficios Tributarios I+D+i | Ley CONCYTEC 30309</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white font-bold p-2 rounded-lg text-xl">S360</div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-wide">SmartWorld AI & Partners</h1>
+                    <p class="text-xs text-slate-400">Simulador Oficial Ley N° 30309 (CONCYTEC)</p>
+                </div>
+            </div>
+            <span class="text-xs bg-blue-900/60 text-blue-300 border border-blue-500/30 px-3 py-1 rounded-full font-medium">B2B Tax Shield</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Inputs -->
+        <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-xl font-bold text-white mb-2">Calculadora de Escudo Fiscal</h2>
+            <p class="text-sm text-slate-400 mb-6">Estime el ahorro tributario de su empresa al invertir en proyectos de innovación tecnológica, desarrollo de software o automatización.</p>
+
+            <form id="taxForm" class="space-y-5" onsubmit="event.preventDefault(); calcularAhorro();">
+                
+                <!-- Facturación Anual -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Facturación Anual Aproximada (S/.):</label>
+                    <input type="number" id="facturacion" required placeholder="Ej. 5500000" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition">
+                    <p class="text-xs text-slate-500 mt-1">1 UIT referencial = S/. 5,150 (Se calcula el límite de 2,300 UIT para PYMEs).</p>
+                </div>
+
+                <!-- Inversión Prevista en I+D+i -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Inversión Prevista en Tecnología / I+D+i (S/.):</label>
+                    <input type="number" id="inversion" required placeholder="Ej. 100000" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <!-- Botón de cálculo -->
+                <button type="button" onclick="calcularAhorro()" 
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg transition shadow-lg shadow-blue-600/30">
+                    Simular Ahorro Tributario
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Column: Results Dashboard -->
+        <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Resultado de la Proyección Fiscal</h3>
+                
+                <div id="placeholderResult" class="text-center py-12 text-slate-500">
+                    <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    <p class="text-sm">Ingrese los datos a la izquierda para calcular el impacto del beneficio tributario.</p>
+                </div>
+
+                <div id="resultadoContainer" class="space-y-4 hidden">
+                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700">
+                        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Categoría Aplicada:</span>
+                        <p id="txtCategoria" class="text-base font-bold text-blue-400 mt-0.5">-</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700">
+                            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Deducción Adicional:</span>
+                            <p id="txtDeduccion" class="text-xl font-extrabold text-emerald-400 mt-1">S/. 0</p>
+                        </div>
+                        <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700">
+                            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Ahorro Neto SUNAT (29.5%):</span>
+                            <p id="txtAhorro" class="text-xl font-extrabold text-emerald-400 mt-1">S/. 0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-950/40 p-4 rounded-xl border border-blue-500/30">
+                        <span class="text-xs uppercase tracking-wider text-blue-300 font-semibold">Costo Real de Inversión para la Empresa:</span>
+                        <p id="txtCostoReal" class="text-2xl font-black text-white mt-1">S/. 0</p>
+                        <p class="text-xs text-blue-300/80 mt-1">El Estado financia gran parte de su proyecto tecnológico vía rebaja de Impuesto a la Renta.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action Lead Capture -->
+            <div id="ctaContainer" class="mt-6 pt-4 border-t border-slate-700 hidden">
+                <button onclick="alert('¡Excelente! Aquí se abrirá un formulario de contacto directo o calendario para agendar la asesoría técnica con el equipo.');" 
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-lg transition text-sm">
+                    Solicitar Estructuración de Expediente con Aliados
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 border-t border-slate-700 py-4 text-center text-xs text-slate-500">
+        <p>&copy; 2026 SmartWorld AI & Ecosistema Asociado. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        function calcularAhorro() {
+            const facturacion = parseFloat(document.getElementById('facturacion').value);
+            const inversion = parseFloat(document.getElementById('inversion').value);
+
+            if (!facturacion || !inversion || facturacion <= 0 || inversion <= 0) {
+                alert('Por favor, ingrese valores válidos mayores a cero.');
+                return;
+            }
+
+            // Cálculo de UITs (Referencia estimada UIT 2026 = S/. 5,150)
+            const valorUIT = 5150;
+            const limitePymeUITs = 2300;
+            const umbralPymeSoles = limitePymeUITs * valorUIT;
+
+            let porcentajeDeduccion = 0;
+            let tipoEmpresa = "";
+
+            if (facturacion <= umbralPymeSoles) {
+                porcentajeDeduccion = 1.40; // 140% adicional (Total 240%)
+                tipoEmpresa = "PYME (< 2,300 UIT) - Deducción del 240%";
+            } else {
+                porcentajeDeduccion = 0.90; // 90% adicional (Total 190%)
+                tipoEmpresa = "Mediana / Gran Empresa - Deducción del 190%";
+            }
+
+            // Cálculos fiscales
+            const deduccionAdicional = inversion * porcentajeDeduccion;
+            const ahorroImpuestoRenta = deduccionAdicional * 0.295; // Tasa IR 29.5%
+            const costoRealInversion = inversion - ahorroImpuestoRenta;
+
+            // Formatear montos en Soles
+            const formatoSoles = (num) => "S/. " + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            // Actualizar la interfaz
+            document.getElementById('txtCategoria').innerText = tipoEmpresa;
+            document.getElementById('txtDeduccion').innerText = formatoSoles(deduccionAdicional);
+            document.getElementById('txtAhorro').innerText = formatoSoles(ahorroImpuestoRenta);
+            document.getElementById('txtCostoReal').innerText = formatoSoles(costoRealInversion);
+
+            // Mostrar resultados y CTA
+            document.getElementById('placeholderResult').classList.add('hidden');
+            document.getElementById('resultadoContainer').classList.remove('hidden');
+            document.getElementById('ctaContainer').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
