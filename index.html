@@ -47,6 +47,13 @@
                         class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
 
+                <!-- Nombre y Cargo del Contacto -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre y Cargo del Responsable:</label>
+                    <input type="text" id="leadContacto" required placeholder="Ej. Carlos Pérez (Gerente General / CFO)" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition">
+                </div>
+
                 <!-- WhatsApp del Lead -->
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">WhatsApp / Celular de Contacto:</label>
@@ -145,17 +152,18 @@
         function calcularAhorro() {
             const razonSocial = document.getElementById('leadRazonSocial').value;
             const ruc = document.getElementById('leadRuc').value;
+            const contacto = document.getElementById('leadContacto').value;
             const leadWp = document.getElementById('leadWhatsapp').value;
             const facturacion = parseFloat(document.getElementById('facturacion').value);
             const inversion = parseFloat(document.getElementById('inversion').value);
 
-            if (!razonSocial || !ruc || !leadWp) {
-                alert('Por favor, complete la Razón Social, el RUC y su número de WhatsApp.');
+            if (!razonSocial || !ruc || !contacto || !leadWp) {
+                alert('Por favor, complete todos los campos de la empresa y contacto.');
                 return;
             }
 
             if (!facturacion || !inversion || facturacion <= 0 || inversion <= 0) {
-                alert('Por favor, ingrese montos de facturación e inversión válidos mayores a cero.');
+                alert('Por favor, ingrese montos válidos mayores a cero.');
                 return;
             }
 
@@ -166,7 +174,7 @@
             let porcentajeDeduccion = 0;
             let tipoEmpresa = "";
             let encargadoInfo = "";
-            let telefonoCentralWp = "51993224286"; // Reemplaza con tu número de WhatsApp de central
+            let telefonoCentralWp = "51993224286"; // Reemplaza con tu número de WhatsApp receptor
 
             if (facturacion <= umbralPymeSoles) {
                 porcentajeDeduccion = 1.40; 
@@ -190,8 +198,8 @@
             document.getElementById('txtCostoReal').innerText = formatoSoles(costoRealInversion);
             document.getElementById('txtEncargado').innerText = encargadoInfo;
 
-            // --- ENVÍO AUTOMÁTICO A GOOGLE SHEETS (CON RUE, RAZÓN SOCIAL Y WHATSAPP) ---
-            const webhookUrl = "https://script.google.com/macros/s/AKfycbyQCiccvXOfmA5bekeLBJO8J8fQbXCrsql0V5nIb3bxh0gMAVil_iXu4Ml1P4XyhQ5x/exec"; // Reemplaza con tu URL de Apps Script
+            // --- ENVÍO AUTOMÁTICO A GOOGLE SHEETS ---
+            const webhookUrl = "https://script.google.com/macros/s/AKfycbyQCiccvXOfmA5bekeLBJO8J8fQbXCrsql0V5nIb3bxh0gMAVil_iXu4Ml1P4XyhQ5x/exec"; 
             
             fetch(webhookUrl, {
                 method: "POST",
@@ -200,6 +208,7 @@
                 body: JSON.stringify({
                     razonSocial: razonSocial,
                     ruc: ruc,
+                    contacto: contacto,
                     leadWhatsapp: leadWp,
                     facturacion: formatoSoles(facturacion),
                     inversion: formatoSoles(inversion),
@@ -208,10 +217,10 @@
                     encargado: encargadoInfo
                 })
             }).catch(error => console.error("Error registrando lead:", error));
-            // ------------------------------------------------------------------------
+            // ----------------------------------------
 
-            // Configurar enlace de WhatsApp para que el cliente converse con ustedes
-            const mensajeWp = encodeURIComponent(`Hola, soy de la empresa *${razonSocial}* (RUC: ${ruc}, Cel: ${leadWp}). Realicé una simulación CONCYTEC. Facturación: ${formatoSoles(facturacion)}, Inversión: ${formatoSoles(inversion)}, Ahorro estimado IR: ${formatoSoles(ahorroImpuestoRenta)}. Deseo agendar la asesoría.`);
+            // Configurar enlace de WhatsApp personalizado para el especialista
+            const mensajeWp = encodeURIComponent(`Hola, mi nombre es ${contacto}, de la empresa *${razonSocial}* (RUC: ${ruc}, Cel: ${leadWp}). Realicé la simulación CONCYTEC. Facturación: ${formatoSoles(facturacion)}, Inversión: ${formatoSoles(inversion)}, Ahorro estimado IR: ${formatoSoles(ahorroImpuestoRenta)}. Deseo coordinar la asesoría técnica con el equipo.`);
             document.getElementById('btnWhatsapp').href = `https://wa.me/${telefonoCentralWp}?text=${mensajeWp}`;
 
             document.getElementById('placeholderResult').classList.add('hidden');
